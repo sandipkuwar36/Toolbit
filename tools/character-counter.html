@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Counter - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">← Back to Tools</a>
+        
+        <div class="tool-header">
+            <h1>Character Counter</h1>
+            <p>Count characters in your text with detailed breakdown</p>
+        </div>
+
+        <div class="tool-section">
+            <div class="form-group">
+                <label for="textInput">Enter your text:</label>
+                <textarea id="textInput" placeholder="Type or paste your text here..."></textarea>
+            </div>
+
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <div class="stat-card" style="background: var(--surface-color); padding: 1rem; border-radius: 0.5rem; text-align: center; border: 1px solid var(--border-color);">
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);" id="totalChars">0</div>
+                    <div style="color: var(--text-secondary);">Total Characters</div>
+                </div>
+                <div class="stat-card" style="background: var(--surface-color); padding: 1rem; border-radius: 0.5rem; text-align: center; border: 1px solid var(--border-color);">
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);" id="charsNoSpaces">0</div>
+                    <div style="color: var(--text-secondary);">Characters (no spaces)</div>
+                </div>
+                <div class="stat-card" style="background: var(--surface-color); padding: 1rem; border-radius: 0.5rem; text-align: center; border: 1px solid var(--border-color);">
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);" id="spaceCount">0</div>
+                    <div style="color: var(--text-secondary);">Spaces</div>
+                </div>
+                <div class="stat-card" style="background: var(--surface-color); padding: 1rem; border-radius: 0.5rem; text-align: center; border: 1px solid var(--border-color);">
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);" id="letterCount">0</div>
+                    <div style="color: var(--text-secondary);">Letters</div>
+                </div>
+                <div class="stat-card" style="background: var(--surface-color); padding: 1rem; border-radius: 0.5rem; text-align: center; border: 1px solid var(--border-color);">
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);" id="numberCount">0</div>
+                    <div style="color: var(--text-secondary);">Numbers</div>
+                </div>
+                <div class="stat-card" style="background: var(--surface-color); padding: 1rem; border-radius: 0.5rem; text-align: center; border: 1px solid var(--border-color);">
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);" id="symbolCount">0</div>
+                    <div style="color: var(--text-secondary);">Symbols</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        const textInput = document.getElementById('textInput');
+        const totalChars = document.getElementById('totalChars');
+        const charsNoSpaces = document.getElementById('charsNoSpaces');
+        const spaceCount = document.getElementById('spaceCount');
+        const letterCount = document.getElementById('letterCount');
+        const numberCount = document.getElementById('numberCount');
+        const symbolCount = document.getElementById('symbolCount');
+
+        function updateCounts() {
+            const text = textInput.value;
+            
+            totalChars.textContent = text.length;
+            charsNoSpaces.textContent = text.replace(/\s/g, '').length;
+            spaceCount.textContent = (text.match(/\s/g) || []).length;
+            letterCount.textContent = (text.match(/[a-zA-Z]/g) || []).length;
+            numberCount.textContent = (text.match(/[0-9]/g) || []).length;
+            symbolCount.textContent = (text.match(/[^\w\s]/g) || []).length;
+        }
+
+        textInput.addEventListener('input', updateCounts);
+        updateCounts();
+    </script>
+</body>
+</html>
