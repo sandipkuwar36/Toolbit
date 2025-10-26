@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hash Generator - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../ads.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">
+            <i class='bx bx-arrow-back'></i> Back to Tools
+        </a>
+        
+        <div class="tool-header">
+            <h1>Hash Generator</h1>
+            <p>Generate MD5, SHA-1, SHA-256, and other hash values from text</p>
+        </div>
+
+        <!-- Top Banner Ad -->
+        <div class="ad-container">
+            <a href="#" class="ad-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="ad-title">🔐 Security Tools Pro</div>
+                <div class="ad-description">Advanced encryption and security utilities</div>
+                <span class="ad-cta">Explore Now</span>
+            </a>
+        </div>
+
+        <div class="tool-section">
+            <div class="form-group">
+                <label for="textInput">Enter text to hash:</label>
+                <textarea id="textInput" placeholder="Enter your text here..."></textarea>
+            </div>
+
+            <button class="button" onclick="generateHashes()">
+                <i class='bx bx-lock'></i> Generate Hashes
+            </button>
+            <button class="button button-secondary" onclick="clearAll()">Clear</button>
+
+            <div class="hash-results" id="hashResults" style="margin-top: 2rem;">
+                <!-- Hash results will be populated here -->
+            </div>
+        </div>
+
+        <!-- Native Ad -->
+        <div class="ad-native">
+            <h3 style="margin: 0 0 0.5rem 0; color: var(--text-color);">🛡️ Secure Your Data</h3>
+            <p style="margin: 0 0 1rem 0; color: var(--subtle-text);">Learn about cybersecurity best practices and data protection.</p>
+            <a href="#" style="color: var(--primary-accent); text-decoration: none; font-weight: 600;">
+                Read Guide <i class='bx bx-right-arrow-alt'></i>
+            </a>
+        </div>
+
+        <!-- Bottom Ad -->
+        <div class="ad-container">
+            <a href="#" class="ad-square" style="background: linear-gradient(45deg, #FA709A 0%, #FEE140 100%);">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🔧</div>
+                <div style="font-weight: 600; font-size: 1.2rem; margin-bottom: 0.5rem;">Developer Tools</div>
+                <div style="font-size: 0.9rem; opacity: 0.9;">Code, test, deploy</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        const textInput = document.getElementById('textInput');
+        const hashResults = document.getElementById('hashResults');
+
+        // Simple hash functions (for demonstration - use crypto libraries in production)
+        function simpleHash(str, algorithm) {
+            let hash = 0;
+            if (str.length === 0) return hash.toString();
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return Math.abs(hash).toString(16);
+        }
+
+        async function generateHashes() {
+            const text = textInput.value.trim();
+            if (!text) {
+                alert('Please enter some text to hash');
+                return;
+            }
+
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+
+            let results = '<h3 style="margin-bottom: 1rem; color: var(--text-color);">Hash Results:</h3>';
+
+            try {
+                // SHA-256
+                const sha256Hash = await crypto.subtle.digest('SHA-256', data);
+                const sha256Hex = Array.from(new Uint8Array(sha256Hash))
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join('');
+                
+                // SHA-1
+                const sha1Hash = await crypto.subtle.digest('SHA-1', data);
+                const sha1Hex = Array.from(new Uint8Array(sha1Hash))
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join('');
+
+                results += createHashResult('SHA-256', sha256Hex);
+                results += createHashResult('SHA-1', sha1Hex);
+                results += createHashResult('MD5 (Simulated)', simpleHash(text, 'md5'));
+
+            } catch (error) {
+                results += '<p style="color: red;">Error generating hashes: ' + error.message + '</p>';
+            }
+
+            hashResults.innerHTML = results;
+        }
+
+        function createHashResult(algorithm, hash) {
+            return `
+                <div class="hash-item" style="margin-bottom: 1.5rem; padding: 1rem; background: var(--surface-color); border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong style="color: var(--text-color);">${algorithm}:</strong>
+                        <button class="button button-secondary" onclick="copyHash('${hash}')" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; margin: 0;">
+                            <i class='bx bx-copy'></i> Copy
+                        </button>
+                    </div>
+                    <div style="background: var(--input-bg); padding: 0.75rem; border-radius: 4px; font-family: monospace; word-break: break-all; color: var(--text-color); border: 1px solid var(--border-color);">
+                        ${hash}
+                    </div>
+                </div>
+            `;
+        }
+
+        function copyHash(hash) {
+            navigator.clipboard.writeText(hash).then(() => {
+                alert('Hash copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = hash;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Hash copied to clipboard!');
+            });
+        }
+
+        function clearAll() {
+            textInput.value = '';
+            hashResults.innerHTML = '';
+        }
+    </script>
+</body>
+</html>

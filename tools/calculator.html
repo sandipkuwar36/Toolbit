@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        .calculator {
+            max-width: 400px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .display {
+            width: 100%;
+            height: 80px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: right;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            font-family: monospace;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        
+        .history-display {
+            width: 100%;
+            height: 30px;
+            background: var(--input-bg);
+            border: none;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            text-align: right;
+            color: var(--subtle-text);
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        
+        .btn {
+            height: 60px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-color);
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-operator {
+            background: var(--primary-accent);
+            color: white;
+            border-color: var(--primary-accent);
+        }
+        
+        .btn-equals {
+            background: #16a34a;
+            color: white;
+            border-color: #16a34a;
+        }
+        
+        .btn-clear {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626);
+        }
+        
+        .btn-function {
+            background: #f59e0b;
+            color: white;
+            border-color: #f59e0b;
+        }
+        
+        .btn-zero {
+            grid-column: span 2;
+        }
+        
+        .calculator-modes {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+        
+        .mode-btn {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn.active {
+            background: var(--primary-accent);
+            color: white;
+            border-color: var(--primary-accent);
+        }
+        
+        .scientific-panel {
+            display: none;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .scientific-panel.active {
+            display: grid;
+        }
+        
+        .sci-btn {
+            height: 45px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 480px) {
+            .calculator {
+                margin: 0 1rem;
+                padding: 1rem;
+            }
+            
+            .display {
+                font-size: 1.5rem;
+                height: 60px;
+            }
+            
+            .btn {
+                height: 50px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">
+            <i class='bx bx-arrow-back'></i> Back to Tools
+        </a>
+        
+        <div class="tool-header">
+            <h1>Calculator</h1>
+            <p>Advanced calculator with scientific functions</p>
+        </div>
+
+        <div class="calculator">
+            <div class="calculator-modes">
+                <button class="mode-btn active" data-mode="basic" onclick="switchMode('basic')">Basic</button>
+                <button class="mode-btn" data-mode="scientific" onclick="switchMode('scientific')">Scientific</button>
+            </div>
+            
+            <input type="text" class="history-display" id="historyDisplay" readonly>
+            <div class="display" id="display">0</div>
+            
+            <div class="scientific-panel" id="scientificPanel">
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('sin')">sin</button>
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('cos')">cos</button>
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('tan')">tan</button>
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('log')">log</button>
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('ln')">ln</button>
+                
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('asin')">sin⁻¹</button>
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('acos')">cos⁻¹</button>
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('atan')">tan⁻¹</button>
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('pow10')">10ˣ</button>
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('exp')">eˣ</button>
+                
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('sqrt')">√</button>
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('cbrt')">∛</button>
+                <button class="btn sci-btn btn-function" onclick="addToDisplay('^')">xʸ</button>
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('factorial')">n!</button>
+                <button class="btn sci-btn btn-function" onclick="addToDisplay('Math.PI')">π</button>
+                
+                <button class="btn sci-btn btn-function" onclick="addToDisplay('Math.E')">e</button>
+                <button class="btn sci-btn btn-function" onclick="addToDisplay('(')">(</button>
+                <button class="btn sci-btn btn-function" onclick="addToDisplay(')')">)</button>
+                <button class="btn sci-btn btn-function" onclick="scientificFunction('abs')">|x|</button>
+                <button class="btn sci-btn btn-function" onclick="toggleSign()">±</button>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-clear" onclick="clearAll()">AC</button>
+                <button class="btn btn-function" onclick="clearEntry()">CE</button>
+                <button class="btn btn-function" onclick="backspace()">⌫</button>
+                <button class="btn btn-operator" onclick="addToDisplay('/')">÷</button>
+                
+                <button class="btn" onclick="addToDisplay('7')">7</button>
+                <button class="btn" onclick="addToDisplay('8')">8</button>
+                <button class="btn" onclick="addToDisplay('9')">9</button>
+                <button class="btn btn-operator" onclick="addToDisplay('*')">×</button>
+                
+                <button class="btn" onclick="addToDisplay('4')">4</button>
+                <button class="btn" onclick="addToDisplay('5')">5</button>
+                <button class="btn" onclick="addToDisplay('6')">6</button>
+                <button class="btn btn-operator" onclick="addToDisplay('-')">−</button>
+                
+                <button class="btn" onclick="addToDisplay('1')">1</button>
+                <button class="btn" onclick="addToDisplay('2')">2</button>
+                <button class="btn" onclick="addToDisplay('3')">3</button>
+                <button class="btn btn-operator" onclick="addToDisplay('+')">+</button>
+                
+                <button class="btn btn-zero" onclick="addToDisplay('0')">0</button>
+                <button class="btn" onclick="addToDisplay('.')">.</button>
+                <button class="btn btn-equals" onclick="calculate()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        let display = document.getElementById('display');
+        let historyDisplay = document.getElementById('historyDisplay');
+        let currentInput = '0';
+        let shouldResetDisplay = false;
+        let lastResult = null;
+
+        function switchMode(mode) {
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+            
+            const scientificPanel = document.getElementById('scientificPanel');
+            if (mode === 'scientific') {
+                scientificPanel.classList.add('active');
+            } else {
+                scientificPanel.classList.remove('active');
+            }
+        }
+
+        function addToDisplay(value) {
+            if (shouldResetDisplay) {
+                currentInput = '';
+                shouldResetDisplay = false;
+            }
+            
+            if (currentInput === '0' && value !== '.' && !isOperator(value)) {
+                currentInput = value;
+            } else {
+                // Handle special mathematical constants
+                if (value === 'Math.PI') {
+                    currentInput += 'π';
+                    display.textContent = currentInput;
+                    return;
+                } else if (value === 'Math.E') {
+                    currentInput += 'e';
+                    display.textContent = currentInput;
+                    return;
+                } else {
+                    currentInput += value;
+                }
+            }
+            
+            display.textContent = currentInput.replace(/\*/g, '×').replace(/\//g, '÷');
+        }
+
+        function isOperator(char) {
+            return ['+', '-', '*', '/', '^'].includes(char);
+        }
+
+        function clearAll() {
+            currentInput = '0';
+            historyDisplay.value = '';
+            display.textContent = '0';
+            shouldResetDisplay = false;
+        }
+
+        function clearEntry() {
+            currentInput = '0';
+            display.textContent = '0';
+        }
+
+        function backspace() {
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            display.textContent = currentInput.replace(/\*/g, '×').replace(/\//g, '÷');
+        }
+
+        function toggleSign() {
+            if (currentInput !== '0') {
+                if (currentInput.startsWith('-')) {
+                    currentInput = currentInput.slice(1);
+                } else {
+                    currentInput = '-' + currentInput;
+                }
+                display.textContent = currentInput.replace(/\*/g, '×').replace(/\//g, '÷');
+            }
+        }
+
+        function scientificFunction(func) {
+            try {
+                let value = parseFloat(currentInput) || 0;
+                let result;
+                
+                switch(func) {
+                    case 'sin':
+                        result = Math.sin(value * Math.PI / 180);
+                        break;
+                    case 'cos':
+                        result = Math.cos(value * Math.PI / 180);
+                        break;
+                    case 'tan':
+                        result = Math.tan(value * Math.PI / 180);
+                        break;
+                    case 'asin':
+                        result = Math.asin(value) * 180 / Math.PI;
+                        break;
+                    case 'acos':
+                        result = Math.acos(value) * 180 / Math.PI;
+                        break;
+                    case 'atan':
+                        result = Math.atan(value) * 180 / Math.PI;
+                        break;
+                    case 'log':
+                        result = Math.log10(value);
+                        break;
+                    case 'ln':
+                        result = Math.log(value);
+                        break;
+                    case 'sqrt':
+                        result = Math.sqrt(value);
+                        break;
+                    case 'cbrt':
+                        result = Math.cbrt(value);
+                        break;
+                    case 'pow10':
+                        result = Math.pow(10, value);
+                        break;
+                    case 'exp':
+                        result = Math.exp(value);
+                        break;
+                    case 'factorial':
+                        result = factorial(Math.floor(Math.abs(value)));
+                        break;
+                    case 'abs':
+                        result = Math.abs(value);
+                        break;
+                }
+                
+                historyDisplay.value = `${func}(${currentInput}) =`;
+                currentInput = result.toString();
+                display.textContent = formatNumber(result);
+                shouldResetDisplay = true;
+                
+            } catch (error) {
+                display.textContent = 'Error';
+                currentInput = '0';
+                shouldResetDisplay = true;
+            }
+        }
+
+        function factorial(n) {
+            if (n <= 1) return 1;
+            if (n > 170) throw new Error('Number too large');
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function calculate() {
+            try {
+                historyDisplay.value = currentInput.replace(/\*/g, '×').replace(/\//g, '÷') + ' =';
+                
+                // Replace special symbols and constants
+                let expression = currentInput
+                    .replace(/π/g, Math.PI)
+                    .replace(/e/g, Math.E)
+                    .replace(/\^/g, '**');
+                
+                let result = eval(expression);
+                
+                if (!isFinite(result)) {
+                    throw new Error('Invalid calculation');
+                }
+                
+                lastResult = result;
+                currentInput = result.toString();
+                display.textContent = formatNumber(result);
+                shouldResetDisplay = true;
+                
+            } catch (error) {
+                display.textContent = 'Error';
+                currentInput = '0';
+                shouldResetDisplay = true;
+            }
+        }
+
+        function formatNumber(num) {
+            if (Math.abs(num) > 999999999 || (Math.abs(num) < 0.000001 && num !== 0)) {
+                return num.toExponential(6);
+            }
+            
+            if (num % 1 === 0) {
+                return num.toString();
+            }
+            
+            return parseFloat(num.toFixed(10)).toString();
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            if (key >= '0' && key <= '9' || key === '.') {
+                addToDisplay(key);
+            } else if (key === '+' || key === '-') {
+                addToDisplay(key);
+            } else if (key === '*') {
+                addToDisplay('*');
+            } else if (key === '/') {
+                event.preventDefault();
+                addToDisplay('/');
+            } else if (key === 'Enter' || key === '=') {
+                event.preventDefault();
+                calculate();
+            } else if (key === 'Escape') {
+                clearAll();
+            } else if (key === 'Backspace') {
+                backspace();
+            } else if (key === 'Delete') {
+                clearEntry();
+            }
+        });
+    </script>
+</body>
+</html>

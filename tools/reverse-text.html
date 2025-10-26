@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reverse Text - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">← Back to Tools</a>
+        
+        <div class="tool-header">
+            <h1>Reverse Text</h1>
+            <p>Reverse your text in different ways</p>
+        </div>
+
+        <div class="tool-section">
+            <div class="form-group">
+                <label for="textInput">Enter your text:</label>
+                <textarea id="textInput" placeholder="Type or paste your text here..."></textarea>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <button class="button" onclick="reverseText('characters')">Reverse Characters</button>
+                <button class="button" onclick="reverseText('words')">Reverse Words</button>
+                <button class="button" onclick="reverseText('lines')">Reverse Lines</button>
+                <button class="button" onclick="reverseText('word-order')">Reverse Word Order</button>
+            </div>
+
+            <div class="form-group">
+                <label for="outputText">Output:</label>
+                <textarea id="outputText" readonly></textarea>
+            </div>
+
+            <button class="button" onclick="copyOutput()">Copy Output</button>
+            <button class="button button-secondary" onclick="clearText()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        const textInput = document.getElementById('textInput');
+        const outputText = document.getElementById('outputText');
+
+        function reverseText(type) {
+            const text = textInput.value;
+            let result = '';
+
+            switch (type) {
+                case 'characters':
+                    result = text.split('').reverse().join('');
+                    break;
+                case 'words':
+                    result = text.split(' ').map(word => word.split('').reverse().join('')).join(' ');
+                    break;
+                case 'lines':
+                    result = text.split('\n').reverse().join('\n');
+                    break;
+                case 'word-order':
+                    result = text.split(' ').reverse().join(' ');
+                    break;
+            }
+
+            outputText.value = result;
+        }
+
+        function copyOutput() {
+            outputText.select();
+            document.execCommand('copy');
+            alert('Output copied to clipboard!');
+        }
+
+        function clearText() {
+            textInput.value = '';
+            outputText.value = '';
+        }
+    </script>
+</body>
+</html>

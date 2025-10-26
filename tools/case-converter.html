@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Converter - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">← Back to Tools</a>
+        
+        <div class="tool-header">
+            <h1>Case Converter</h1>
+            <p>Convert text between different cases</p>
+        </div>
+
+        <div class="tool-section">
+            <div class="form-group">
+                <label for="textInput">Enter your text:</label>
+                <textarea id="textInput" placeholder="Type or paste your text here..."></textarea>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <button class="button" onclick="convertCase('upper')">UPPERCASE</button>
+                <button class="button" onclick="convertCase('lower')">lowercase</button>
+                <button class="button" onclick="convertCase('title')">Title Case</button>
+                <button class="button" onclick="convertCase('sentence')">Sentence case</button>
+                <button class="button" onclick="convertCase('camel')">camelCase</button>
+                <button class="button" onclick="convertCase('pascal')">PascalCase</button>
+                <button class="button" onclick="convertCase('kebab')">kebab-case</button>
+                <button class="button" onclick="convertCase('snake')">snake_case</button>
+            </div>
+
+            <div class="form-group">
+                <label for="outputText">Output:</label>
+                <textarea id="outputText" readonly></textarea>
+            </div>
+
+            <button class="button" onclick="copyOutput()">Copy Output</button>
+            <button class="button button-secondary" onclick="clearText()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        const textInput = document.getElementById('textInput');
+        const outputText = document.getElementById('outputText');
+
+        function convertCase(caseType) {
+            const text = textInput.value;
+            let result = '';
+
+            switch (caseType) {
+                case 'upper':
+                    result = text.toUpperCase();
+                    break;
+                case 'lower':
+                    result = text.toLowerCase();
+                    break;
+                case 'title':
+                    result = text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+                    break;
+                case 'sentence':
+                    result = text.toLowerCase().replace(/^\w/, l => l.toUpperCase());
+                    break;
+                case 'camel':
+                    result = text.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+                    break;
+                case 'pascal':
+                    result = text.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase()).replace(/^./, l => l.toUpperCase());
+                    break;
+                case 'kebab':
+                    result = text.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                    break;
+                case 'snake':
+                    result = text.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+                    break;
+            }
+
+            outputText.value = result;
+        }
+
+        function copyOutput() {
+            outputText.select();
+            document.execCommand('copy');
+            alert('Output copied to clipboard!');
+        }
+
+        function clearText() {
+            textInput.value = '';
+            outputText.value = '';
+        }
+    </script>
+</body>
+</html>

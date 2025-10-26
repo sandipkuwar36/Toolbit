@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Calculator - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        .tab-button {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active {
+            background: var(--primary-accent);
+            color: white;
+            border-color: var(--primary-accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .date-input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .age-result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .age-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .age-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .age-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .age-label {
+            color: var(--subtle-text);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .milestone-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .milestone-achieved {
+            color: #16a34a;
+            font-weight: 600;
+        }
+        
+        .milestone-upcoming {
+            color: var(--primary-accent);
+            font-weight: 600;
+        }
+        
+        .time-breakdown {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">
+            <i class='bx bx-arrow-back'></i> Back to Tools
+        </a>
+        
+        <div class="tool-header">
+            <h1>Age Calculator</h1>
+            <p>Calculate age, time differences, and important milestones</p>
+        </div>
+
+        <div class="tool-section">
+            <div class="calculator-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                <button class="tab-button active" data-tab="age" onclick="switchTab('age')">Age Calculator</button>
+                <button class="tab-button" data-tab="date-diff" onclick="switchTab('date-diff')">Date Difference</button>
+                <button class="tab-button" data-tab="milestones" onclick="switchTab('milestones')">Milestones</button>
+            </div>
+
+            <!-- Age Calculator Tab -->
+            <div id="age-tab" class="tab-content active">
+                <div class="date-input-group">
+                    <div class="form-group">
+                        <label for="birthDate">Date of Birth:</label>
+                        <input type="date" id="birthDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="calculateDate">Calculate Age On (Optional):</label>
+                        <input type="date" id="calculateDate">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <button class="button" onclick="calculateAge()">
+                        <i class='bx bx-calculator'></i> Calculate Age
+                    </button>
+                    <button class="button button-secondary" onclick="setToday()">Use Today's Date</button>
+                    <button class="button button-secondary" onclick="clearAge()">Clear</button>
+                </div>
+
+                <div id="ageResults" style="display: none;">
+                    <h3 style="color: var(--text-color); margin-bottom: 1rem;">Your Age Results:</h3>
+                    
+                    <div class="age-result-grid">
+                        <div class="age-card">
+                            <div class="age-number" id="ageYears">0</div>
+                            <div class="age-label">Years</div>
+                        </div>
+                        <div class="age-card">
+                            <div class="age-number" id="ageMonths">0</div>
+                            <div class="age-label">Months</div>
+                        </div>
+                        <div class="age-card">
+                            <div class="age-number" id="ageDays">0</div>
+                            <div class="age-label">Days</div>
+                        </div>
+                        <div class="age-card">
+                            <div class="age-number" id="ageHours">0</div>
+                            <div class="age-label">Hours</div>
+                        </div>
+                        <div class="age-card">
+                            <div class="age-number" id="ageMinutes">0</div>
+                            <div class="age-label">Minutes</div>
+                        </div>
+                        <div class="age-card">
+                            <div class="age-number" id="ageSeconds">0</div>
+                            <div class="age-label">Seconds</div>
+                        </div>
+                    </div>
+
+                    <div class="time-breakdown">
+                        <h4 style="color: var(--text-color); margin-bottom: 1rem;">Detailed Breakdown:</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                            <div>
+                                <strong>Total Days Lived:</strong> <span id="totalDays">0</span> days
+                            </div>
+                            <div>
+                                <strong>Total Hours:</strong> <span id="totalHours">0</span> hours
+                            </div>
+                            <div>
+                                <strong>Total Minutes:</strong> <span id="totalMinutes">0</span> minutes
+                            </div>
+                            <div>
+                                <strong>Total Seconds:</strong> <span id="totalSeconds">0</span> seconds
+                            </div>
+                            <div>
+                                <strong>Total Weeks:</strong> <span id="totalWeeks">0</span> weeks
+                            </div>
+                            <div>
+                                <strong>Next Birthday:</strong> <span id="nextBirthday">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Difference Tab -->
+            <div id="date-diff-tab" class="tab-content">
+                <div class="date-input-group">
+                    <div class="form-group">
+                        <label for="fromDate">From Date:</label>
+                        <input type="date" id="fromDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="toDate">To Date:</label>
+                        <input type="date" id="toDate">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <button class="button" onclick="calculateDateDifference()">
+                        <i class='bx bx-calculator'></i> Calculate Difference
+                    </button>
+                    <button class="button button-secondary" onclick="clearDateDiff()">Clear</button>
+                </div>
+
+                <div id="dateDiffResults" style="display: none;">
+                    <h3 style="color: var(--text-color); margin-bottom: 1rem;">Date Difference:</h3>
+                    
+                    <div class="age-result-grid">
+                        <div class="age-card">
+                            <div class="age-number" id="diffYears">0</div>
+                            <div class="age-label">Years</div>
+                        </div>
+                        <div class="age-card">
+                            <div class="age-number" id="diffMonths">0</div>
+                            <div class="age-label">Months</div>
+                        </div>
+                        <div class="age-card">
+                            <div class="age-number" id="diffDays">0</div>
+                            <div class="age-label">Days</div>
+                        </div>
+                        <div class="age-card">
+                            <div class="age-number" id="diffTotalDays">0</div>
+                            <div class="age-label">Total Days</div>
+                        </div>
+                        <div class="age-card">
+                            <div class="age-number" id="diffWeeks">0</div>
+                            <div class="age-label">Weeks</div>
+                        </div>
+                        <div class="age-card">
+                            <div class="age-number" id="diffHours">0</div>
+                            <div class="age-label">Hours</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Milestones Tab -->
+            <div id="milestones-tab" class="tab-content">
+                <div class="form-group">
+                    <label for="milestoneBirthDate">Date of Birth:</label>
+                    <input type="date" id="milestoneBirthDate">
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <button class="button" onclick="calculateMilestones()">
+                        <i class='bx bx-trophy'></i> Calculate Milestones
+                    </button>
+                    <button class="button button-secondary" onclick="clearMilestones()">Clear</button>
+                </div>
+
+                <div id="milestonesResults" style="display: none;">
+                    <h3 style="color: var(--text-color); margin-bottom: 1rem;">Life Milestones:</h3>
+                    <div id="milestonesList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        // Set today's date as default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('calculateDate').value = today;
+        document.getElementById('toDate').value = today;
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        function setToday() {
+            document.getElementById('calculateDate').value = today;
+        }
+
+        function calculateAge() {
+            const birthDate = document.getElementById('birthDate').value;
+            const calculateDate = document.getElementById('calculateDate').value || today;
+            
+            if (!birthDate) {
+                alert('Please enter your date of birth');
+                return;
+            }
+            
+            const birth = new Date(birthDate);
+            const calculate = new Date(calculateDate);
+            
+            if (birth > calculate) {
+                alert('Birth date cannot be in the future');
+                return;
+            }
+            
+            const diff = calculate - birth;
+            
+            // Calculate age components
+            const ageDate = new Date(diff);
+            const years = ageDate.getUTCFullYear() - 1970;
+            const months = ageDate.getUTCMonth();
+            const days = ageDate.getUTCDate() - 1;
+            
+            // Calculate total values
+            const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const totalHours = Math.floor(diff / (1000 * 60 * 60));
+            const totalMinutes = Math.floor(diff / (1000 * 60));
+            const totalSeconds = Math.floor(diff / 1000);
+            const totalWeeks = Math.floor(totalDays / 7);
+            
+            // Calculate precise age
+            const preciseAge = calculatePreciseAge(birth, calculate);
+            
+            // Update display
+            document.getElementById('ageYears').textContent = preciseAge.years;
+            document.getElementById('ageMonths').textContent = preciseAge.months;
+            document.getElementById('ageDays').textContent = preciseAge.days;
+            document.getElementById('ageHours').textContent = totalHours.toLocaleString();
+            document.getElementById('ageMinutes').textContent = totalMinutes.toLocaleString();
+            document.getElementById('ageSeconds').textContent = totalSeconds.toLocaleString();
+            
+            document.getElementById('totalDays').textContent = totalDays.toLocaleString();
+            document.getElementById('totalHours').textContent = totalHours.toLocaleString();
+            document.getElementById('totalMinutes').textContent = totalMinutes.toLocaleString();
+            document.getElementById('totalSeconds').textContent = totalSeconds.toLocaleString();
+            document.getElementById('totalWeeks').textContent = totalWeeks.toLocaleString();
+            
+            // Calculate next birthday
+            const nextBirthday = new Date(calculate.getFullYear(), birth.getMonth(), birth.getDate());
+            if (nextBirthday < calculate) {
+                nextBirthday.setFullYear(calculate.getFullYear() + 1);
+            }
+            const daysToNext = Math.ceil((nextBirthday - calculate) / (1000 * 60 * 60 * 24));
+            document.getElementById('nextBirthday').textContent = `${daysToNext} days (${nextBirthday.toLocaleDateString()})`;
+            
+            document.getElementById('ageResults').style.display = 'block';
+        }
+
+        function calculatePreciseAge(birthDate, currentDate) {
+            let years = currentDate.getFullYear() - birthDate.getFullYear();
+            let months = currentDate.getMonth() - birthDate.getMonth();
+            let days = currentDate.getDate() - birthDate.getDate();
+            
+            if (days < 0) {
+                months--;
+                const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+                days += prevMonth.getDate();
+            }
+            
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+            
+            return { years, months, days };
+        }
+
+        function calculateDateDifference() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            
+            if (!fromDate || !toDate) {
+                alert('Please enter both dates');
+                return;
+            }
+            
+            const from = new Date(fromDate);
+            const to = new Date(toDate);
+            const diff = Math.abs(to - from);
+            
+            // Calculate precise difference
+            const preciseDiff = calculatePreciseAge(from, to);
+            
+            // Calculate total values
+            const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const totalWeeks = Math.floor(totalDays / 7);
+            const totalHours = Math.floor(diff / (1000 * 60 * 60));
+            
+            // Update display
+            document.getElementById('diffYears').textContent = Math.abs(preciseDiff.years);
+            document.getElementById('diffMonths').textContent = Math.abs(preciseDiff.months);
+            document.getElementById('diffDays').textContent = Math.abs(preciseDiff.days);
+            document.getElementById('diffTotalDays').textContent = totalDays.toLocaleString();
+            document.getElementById('diffWeeks').textContent = totalWeeks.toLocaleString();
+            document.getElementById('diffHours').textContent = totalHours.toLocaleString();
+            
+            document.getElementById('dateDiffResults').style.display = 'block';
+        }
+
+        function calculateMilestones() {
+            const birthDate = document.getElementById('milestoneBirthDate').value;
+            
+            if (!birthDate) {
+                alert('Please enter your date of birth');
+                return;
+            }
+            
+            const birth = new Date(birthDate);
+            const now = new Date();
+            
+            const milestones = [
+                { age: 1, title: '1st Birthday', unit: 'years' },
+                { age: 5, title: 'School Age', unit: 'years' },
+                { age: 10, title: '1st Decade', unit: 'years' },
+                { age: 13, title: 'Teenager', unit: 'years' },
+                { age: 16, title: 'Sweet Sixteen', unit: 'years' },
+                { age: 18, title: 'Legal Adult', unit: 'years' },
+                { age: 21, title: '21st Birthday', unit: 'years' },
+                { age: 25, title: 'Quarter Century', unit: 'years' },
+                { age: 30, title: 'Thirty', unit: 'years' },
+                { age: 40, title: 'Forty', unit: 'years' },
+                { age: 50, title: 'Half Century', unit: 'years' },
+                { age: 65, title: 'Retirement Age', unit: 'years' },
+                { age: 100, title: 'Centennial', unit: 'years' },
+                { age: 1000, title: '1000 Days', unit: 'days' },
+                { age: 5000, title: '5000 Days', unit: 'days' },
+                { age: 10000, title: '10000 Days', unit: 'days' },
+                { age: 1000000, title: '1 Million Minutes', unit: 'minutes' }
+            ];
+            
+            let milestonesHtml = '';
+            
+            milestones.forEach(milestone => {
+                let milestoneDate, isAchieved, timeFromNow;
+                
+                if (milestone.unit === 'years') {
+                    milestoneDate = new Date(birth.getFullYear() + milestone.age, birth.getMonth(), birth.getDate());
+                } else if (milestone.unit === 'days') {
+                    milestoneDate = new Date(birth.getTime() + (milestone.age * 24 * 60 * 60 * 1000));
+                } else if (milestone.unit === 'minutes') {
+                    milestoneDate = new Date(birth.getTime() + (milestone.age * 60 * 1000));
+                }
+                
+                isAchieved = milestoneDate <= now;
+                
+                if (isAchieved) {
+                    const timeAgo = Math.floor((now - milestoneDate) / (1000 * 60 * 60 * 24));
+                    timeFromNow = `${timeAgo} days ago`;
+                } else {
+                    const timeUntil = Math.ceil((milestoneDate - now) / (1000 * 60 * 60 * 24));
+                    timeFromNow = `in ${timeUntil} days`;
+                }
+                
+                milestonesHtml += `
+                    <div class="milestone-item">
+                        <div>
+                            <strong>${milestone.title}</strong><br>
+                            <small style="color: var(--subtle-text);">${milestoneDate.toLocaleDateString()}</small>
+                        </div>
+                        <div class="${isAchieved ? 'milestone-achieved' : 'milestone-upcoming'}">
+                            ${isAchieved ? '✓ Achieved' : '⏳ Upcoming'}<br>
+                            <small>${timeFromNow}</small>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('milestonesList').innerHTML = milestonesHtml;
+            document.getElementById('milestonesResults').style.display = 'block';
+        }
+
+        function clearAge() {
+            document.getElementById('birthDate').value = '';
+            document.getElementById('calculateDate').value = today;
+            document.getElementById('ageResults').style.display = 'none';
+        }
+
+        function clearDateDiff() {
+            document.getElementById('fromDate').value = '';
+            document.getElementById('toDate').value = today;
+            document.getElementById('dateDiffResults').style.display = 'none';
+        }
+
+        function clearMilestones() {
+            document.getElementById('milestoneBirthDate').value = '';
+            document.getElementById('milestonesResults').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

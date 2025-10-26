@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Formatter - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">← Back to Tools</a>
+        
+        <div class="tool-header">
+            <h1>JSON Formatter</h1>
+            <p>Format, validate, and minify JSON data</p>
+        </div>
+
+        <div class="tool-section">
+            <div class="form-group">
+                <label for="inputJSON">Input JSON:</label>
+                <textarea id="inputJSON" placeholder="Paste your JSON here..." style="height: 200px;"></textarea>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <button class="button" onclick="formatJSON()">Format JSON</button>
+                <button class="button" onclick="minifyJSON()">Minify JSON</button>
+                <button class="button" onclick="validateJSON()">Validate JSON</button>
+            </div>
+
+            <div class="form-group">
+                <label for="outputJSON">Output:</label>
+                <textarea id="outputJSON" readonly style="height: 200px;"></textarea>
+            </div>
+
+            <div id="validationMessage" style="margin-top: 1rem; padding: 0.75rem; border-radius: 0.5rem; display: none;"></div>
+
+            <button class="button" onclick="copyOutput()">Copy Output</button>
+            <button class="button button-secondary" onclick="clearAll()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        const inputJSON = document.getElementById('inputJSON');
+        const outputJSON = document.getElementById('outputJSON');
+        const validationMessage = document.getElementById('validationMessage');
+
+        function showMessage(message, type) {
+            validationMessage.textContent = message;
+            validationMessage.style.display = 'block';
+            validationMessage.style.backgroundColor = type === 'error' ? '#fee2e2' : '#dcfce7';
+            validationMessage.style.color = type === 'error' ? '#dc2626' : '#16a34a';
+            validationMessage.style.border = type === 'error' ? '1px solid #fecaca' : '1px solid #bbf7d0';
+        }
+
+        function hideMessage() {
+            validationMessage.style.display = 'none';
+        }
+
+        function formatJSON() {
+            hideMessage();
+            try {
+                const json = JSON.parse(inputJSON.value);
+                const formatted = JSON.stringify(json, null, 2);
+                outputJSON.value = formatted;
+                showMessage('JSON formatted successfully!', 'success');
+            } catch (error) {
+                showMessage('Invalid JSON: ' + error.message, 'error');
+                outputJSON.value = '';
+            }
+        }
+
+        function minifyJSON() {
+            hideMessage();
+            try {
+                const json = JSON.parse(inputJSON.value);
+                const minified = JSON.stringify(json);
+                outputJSON.value = minified;
+                showMessage('JSON minified successfully!', 'success');
+            } catch (error) {
+                showMessage('Invalid JSON: ' + error.message, 'error');
+                outputJSON.value = '';
+            }
+        }
+
+        function validateJSON() {
+            hideMessage();
+            try {
+                JSON.parse(inputJSON.value);
+                showMessage('Valid JSON!', 'success');
+                outputJSON.value = 'JSON is valid ✓';
+            } catch (error) {
+                showMessage('Invalid JSON: ' + error.message, 'error');
+                outputJSON.value = 'JSON is invalid ✗';
+            }
+        }
+
+        function copyOutput() {
+            outputJSON.select();
+            document.execCommand('copy');
+            alert('Output copied to clipboard!');
+        }
+
+        function clearAll() {
+            inputJSON.value = '';
+            outputJSON.value = '';
+            hideMessage();
+        }
+    </script>
+</body>
+</html>

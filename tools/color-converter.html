@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Converter - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../ads.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">
+            <i class='bx bx-arrow-back'></i> Back to Tools
+        </a>
+        
+        <div class="tool-header">
+            <h1>Color Converter</h1>
+            <p>Convert between HEX, RGB, HSL, and other color formats</p>
+        </div>
+
+        <!-- Top Banner Ad -->
+        <div class="ad-container">
+            <a href="#" class="ad-banner" style="background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);">
+                <div class="ad-title">🎨 Design Suite Pro</div>
+                <div class="ad-description">Professional design tools for creatives</div>
+                <span class="ad-cta">Start Creating</span>
+            </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 220px; gap: 2rem; align-items: start;">
+            <div class="main-content">
+                <div class="tool-section">
+                    <div class="form-group">
+                        <label for="colorPicker">Color Picker:</label>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <input type="color" id="colorPicker" style="width: 60px; height: 40px; border: none; border-radius: 8px; cursor: pointer;">
+                            <input type="text" id="colorInput" placeholder="Enter HEX, RGB, or HSL..." style="flex: 1;">
+                        </div>
+                    </div>
+
+                    <button class="button" onclick="convertColor()">
+                        <i class='bx bx-palette'></i> Convert Color
+                    </button>
+                    <button class="button button-secondary" onclick="randomColor()">Random Color</button>
+
+                    <!-- Color Preview -->
+                    <div class="color-preview" style="margin: 2rem 0;">
+                        <div id="colorDisplay" style="width: 100%; height: 100px; border-radius: 12px; border: 2px solid var(--border-color); background: #ffffff;"></div>
+                    </div>
+
+                    <!-- Color Values -->
+                    <div class="color-values" id="colorValues">
+                        <!-- Color conversion results will appear here -->
+                    </div>
+                </div>
+
+                <!-- Native Ad -->
+                <div class="ad-native">
+                    <h3 style="margin: 0 0 0.5rem 0; color: var(--text-color);">🖌️ Color Theory Guide</h3>
+                    <p style="margin: 0 0 1rem 0; color: var(--subtle-text);">Master color combinations and design principles.</p>
+                    <a href="#" style="color: var(--primary-accent); text-decoration: none; font-weight: 600;">
+                        Learn More <i class='bx bx-right-arrow-alt'></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sidebar Ad -->
+            <div class="sidebar-ads" style="display: none;">
+                <a href="#" class="ad-sidebar" style="background: linear-gradient(180deg, #FFD93D 0%, #FF6B6B 100%);">
+                    <div style="font-size: 1.5rem; margin-bottom: 1rem;">🎯</div>
+                    <div style="font-weight: 600; margin-bottom: 0.5rem; color: white;">Brand Tools</div>
+                    <div style="font-size: 0.9rem; opacity: 0.8; text-align: center; color: white;">Build your brand</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Bottom Square Ad -->
+        <div class="ad-container">
+            <a href="#" class="ad-square" style="background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎨</div>
+                <div style="font-weight: 600; font-size: 1.2rem; margin-bottom: 0.5rem;">UI/UX Tools</div>
+                <div style="font-size: 0.9rem; opacity: 0.9;">Design better interfaces</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        const colorPicker = document.getElementById('colorPicker');
+        const colorInput = document.getElementById('colorInput');
+        const colorDisplay = document.getElementById('colorDisplay');
+        const colorValues = document.getElementById('colorValues');
+
+        colorPicker.addEventListener('input', (e) => {
+            colorInput.value = e.target.value;
+            convertColor();
+        });
+
+        colorInput.addEventListener('input', (e) => {
+            if (isValidColor(e.target.value)) {
+                colorPicker.value = e.target.value;
+                convertColor();
+            }
+        });
+
+        function isValidColor(color) {
+            const style = new Option().style;
+            style.color = color;
+            return style.color !== '';
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function convertColor() {
+            const color = colorInput.value || colorPicker.value;
+            if (!color) return;
+
+            // Update color display
+            colorDisplay.style.background = color;
+
+            // Convert to RGB
+            const rgb = hexToRgb(color);
+            if (!rgb) return;
+
+            // Convert to HSL
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+            // Create results HTML
+            const results = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    ${createColorResult('HEX', color.toUpperCase())}
+                    ${createColorResult('RGB', `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`)}
+                    ${createColorResult('RGBA', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 1)`)}
+                    ${createColorResult('HSL', `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`)}
+                    ${createColorResult('HSLA', `hsla(${hsl.h}, ${hsl.s}%, ${hsl.l}%, 1)`)}
+                    ${createColorResult('CSS RGB', `rgb(${rgb.r} ${rgb.g} ${rgb.b})`)}
+                </div>
+            `;
+
+            colorValues.innerHTML = results;
+        }
+
+        function createColorResult(format, value) {
+            return `
+                <div class="color-result" style="padding: 1rem; background: var(--surface-color); border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong style="color: var(--text-color);">${format}:</strong>
+                        <button class="button button-secondary" onclick="copyValue('${value}')" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; margin: 0;">
+                            <i class='bx bx-copy'></i>
+                        </button>
+                    </div>
+                    <div style="background: var(--input-bg); padding: 0.5rem; border-radius: 4px; font-family: monospace; color: var(--text-color); border: 1px solid var(--border-color);">
+                        ${value}
+                    </div>
+                </div>
+            `;
+        }
+
+        function copyValue(value) {
+            navigator.clipboard.writeText(value).then(() => {
+                alert('Color value copied to clipboard!');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = value;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Color value copied to clipboard!');
+            });
+        }
+
+        function randomColor() {
+            const randomHex = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+            colorPicker.value = randomHex;
+            colorInput.value = randomHex;
+            convertColor();
+        }
+
+        // Show sidebar ads on desktop
+        function updateAdLayout() {
+            const sidebarAds = document.querySelector('.sidebar-ads');
+            if (window.innerWidth > 1024) {
+                sidebarAds.style.display = 'block';
+                document.querySelector('.main-content').parentElement.style.gridTemplateColumns = '1fr 220px';
+            } else {
+                sidebarAds.style.display = 'none';

@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Generator - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        .generator-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .generator-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .tab-button {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active {
+            background: var(--primary-accent);
+            color: white;
+            border-color: var(--primary-accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .result-display {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-accent)22, transparent 50%);
+            opacity: 0.05;
+            z-index: 0;
+        }
+        
+        .result-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-accent);
+            margin-bottom: 0.5rem;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .result-label {
+            color: var(--subtle-text);
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .generate-button {
+            background: linear-gradient(135deg, var(--primary-accent), #8b5cf6);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+            min-width: 200px;
+        }
+        
+        .generate-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(105, 92, 254, 0.4);
+        }
+        
+        .generate-button:active {
+            transform: translateY(0);
+        }
+        
+        .history-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+        
+        .history-header {
+            background: var(--surface-color);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-item:nth-child(even) {
+            background: var(--surface-color);
+        }
+        
+        .history-value {
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            color: var(--primary-accent);
+        }
+        
+        .history-timestamp {
+            font-size: 0.8rem;
+            color: var(--subtle-text);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-accent);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--subtle-text);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.5rem;
+        }
+        
+        .list-display {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .list-numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .number-chip {
+            background: var(--primary-accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .result-number {
+                font-size: 2rem;
+            }
+            
+            .generate-button {
+                width: 100%;
+            }
+            
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">
+            <i class='bx bx-arrow-back'></i> Back to Tools
+        </a>
+        
+        <div class="tool-header">
+            <h1>Random Number Generator</h1>
+            <p>Generate random numbers, dice rolls, and lottery numbers</p>
+        </div>
+
+        <div class="generator-container">
+            <div class="generator-tabs">
+                <button class="tab-button active" data-tab="single" onclick="switchTab('single')">Single Number</button>
+                <button class="tab-button" data-tab="multiple" onclick="switchTab('multiple')">Multiple Numbers</button>
+                <button class="tab-button" data-tab="dice" onclick="switchTab('dice')">Dice Roll</button>
+                <button class="tab-button" data-tab="lottery" onclick="switchTab('lottery')">Lottery</button>
+                <button class="tab-button" data-tab="decimal" onclick="switchTab('decimal')">Decimal</button>
+            </div>
+
+            <!-- Single Number Tab -->
+            <div id="single-tab" class="tab-content active">
+                <div class="result-display">
+                    <div class="result-number" id="singleResult">-</div>
+                    <div class="result-label">Random Number</div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="singleMin">Minimum Value:</label>
+                        <input type="number" id="singleMin" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="singleMax">Maximum Value:</label>
+                        <input type="number" id="singleMax" value="100">
+                    </div>
+                </div>
+                
+                <button class="generate-button" onclick="generateSingle()">
+                    <i class='bx bx-refresh'></i> Generate Random Number
+                </button>
+            </div>
+
+            <!-- Multiple Numbers Tab -->
+            <div id="multiple-tab" class="tab-content">
+                <div class="result-display">
+                    <div class="list-display">
+                        <div class="list-numbers" id="multipleResults">
+                            Click generate to create random numbers
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="multipleCount">How many numbers:</label>
+                        <input type="number" id="multipleCount" min="1" max="100" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="multipleMin">Minimum Value:</label>
+                        <input type="number" id="multipleMin" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="multipleMax">Maximum Value:</label>
+                        <input type="number" id="multipleMax" value="100">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="uniqueNumbers" checked>
+                        Generate unique numbers (no duplicates)
+                    </label>
+                </div>
+                
+                <button class="generate-button" onclick="generateMultiple()">
+                    <i class='bx bx-list-ol'></i> Generate Numbers
+                </button>
+                
+                <div style="margin-top: 1rem; text-align: center;">
+                    <button class="button button-secondary" onclick="copyNumbers()">
+                        <i class='bx bx-copy'></i> Copy Numbers
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dice Roll Tab -->
+            <div id="dice-tab" class="tab-content">
+                <div class="result-display">
+                    <div class="result-number" id="diceResult">-</div>
+                    <div class="result-label">Dice Roll Result</div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="diceCount">Number of Dice:</label>
+                        <input type="number" id="diceCount" min="1" max="10" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="diceSides">Sides per Die:</label>
+                        <select id="diceSides">
+                            <option value="4">4-sided (d4)</option>
+                            <option value="6" selected>6-sided (d6)</option>
+                            <option value="8">8-sided (d8)</option>
+                            <option value="10">10-sided (d10)</option>
+                            <option value="12">12-sided (d12)</option>
+                            <option value="20">20-sided (d20)</option>
+                            <option value="100">100-sided (d100)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="diceDetails" style="margin: 1rem 0; font-family: 'Courier New', monospace; text-align: center; color: var(--subtle-text);"></div>
+                
+                <button class="generate-button" onclick="rollDice()">
+                    <i class='bx bx-dice-6'></i> Roll Dice
+                </button>
+            </div>
+
+            <!-- Lottery Tab -->
+            <div id="lottery-tab" class="tab-content">
+                <div class="result-display">
+                    <div class="list-display">
+                        <div class="list-numbers" id="lotteryResults">
+                            Click generate to create lottery numbers
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="lotteryCount">Numbers to pick:</label>
+                        <input type="number" id="lotteryCount" min="1" max="20" value="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="lotteryMax">Maximum number:</label>
+                        <input type="number" id="lotteryMax" min="10" max="100" value="49">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lotteryPreset">Quick Presets:</label>
+                    <select id="lotteryPreset" onchange="setLotteryPreset()">
+                        <option value="">Custom</option>
+                        <option value="6/49">6/49 (Lotto)</option>
+                        <option value="5/69">5/69 (Powerball)</option>
+                        <option value="7/35">7/35 (EuroMillions)</option>
+                        <option value="6/59">6/59 (UK National Lottery)</option>
+                    </select>
+                </div>
+                
+                <button class="generate-button" onclick="generateLottery()">
+                    <i class='bx bx-trophy'></i> Generate Lottery Numbers
+                </button>
+                
+                <div style="margin-top: 1rem; text-align: center;">
+                    <button class="button button-secondary" onclick="copyLottery()">
+                        <i class='bx bx-copy'></i> Copy Numbers
+                    </button>
+                </div>
+            </div>
+
+            <!-- Decimal Tab -->
+            <div id="decimal-tab" class="tab-content">
+                <div class="result-display">
+                    <div class="result-number" id="decimalResult">-</div>
+                    <div class="result-label">Random Decimal Number</div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="decimalMin">Minimum Value:</label>
+                        <input type="number" id="decimalMin" step="0.01" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="decimalMax">Maximum Value:</label>
+                        <input type="number" id="decimalMax" step="0.01" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="decimalPlaces">Decimal Places:</label>
+                        <input type="number" id="decimalPlaces" min="1" max="10" value="2">
+                    </div>
+                </div>
+                
+                <button class="generate-button" onclick="generateDecimal()">
+                    <i class='bx bx-calculator'></i> Generate Decimal
+                </button>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-grid" id="statsGrid" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalGenerated">0</div>
+                    <div class="stat-label">Total Generated</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="lastValue">-</div>
+                    <div class="stat-label">Last Value</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="minGenerated">-</div>
+                    <div class="stat-label">Min Generated</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="maxGenerated">-</div>
+                    <div class="stat-label">Max Generated</div>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="history-section" id="historySection" style="display: none;">
+                <div class="history-header">
+                    <span><i class='bx bx-history'></i> Generation History</span>
+                    <button class="button button-secondary" onclick="clearHistory()" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; margin: 0;">
+                        Clear History
+                    </button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <!-- History items will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        let history = [];
+        let stats = {
+            total: 0,
+            values: [],
+            min: null,
+            max: null
+        };
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        function addToHistory(value, type) {
+            const timestamp = new Date().toLocaleTimeString();
+            history.unshift({ value, type, timestamp });
+            
+            // Keep only last 20 entries
+            if (history.length > 20) {
+                history = history.slice(0, 20);
+            }
+            
+            updateHistoryDisplay();
+            updateStats();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            const historySection = document.getElementById('historySection');
+            
+            if (history.length === 0) {
+                historySection.style.display = 'none';
+                return;
+            }
+            
+            historySection.style.display = 'block';
+            document.getElementById('statsGrid').style.display = 'grid';
+            
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item">
+                    <div>
+                        <span class="history-value">${item.value}</span>
+                        <small style="color: var(--subtle-text); margin-left: 0.5rem;">(${item.type})</small>
+                    </div>
+                    <span class="history-timestamp">${item.timestamp}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalGenerated').textContent = history.length;
+            
+            if (history.length > 0) {
+                document.getElementById('lastValue').textContent = history[0].value;
+                
+                // Calculate min/max from numeric values only
+                const numericValues = history
+                    .map(item => {
+                        const num = parseFloat(item.value.toString().replace(/[^\d.-]/g, ''));
+                        return isNaN(num) ? null : num;
+                    })
+                    .filter(val => val !== null);
+                
+                if (numericValues.length > 0) {
+                    document.getElementById('minGenerated').textContent = Math.min(...numericValues);
+                    document.getElementById('maxGenerated').textContent = Math.max(...numericValues);
+                }
+            }
+        }
+
+        function clearHistory() {
+            history = [];
+            updateHistoryDisplay();
+            document.getElementById('statsGrid').style.display = 'none';
+        }
+
+        function generateSingle() {
+            const min = parseInt(document.getElementById('singleMin').value) || 0;
+            const max = parseInt(document.getElementById('singleMax').value) || 100;
+            
+            if (min >= max) {
+                alert('Maximum value must be greater than minimum value');
+                return;
+            }
+            
+            const result = Math.floor(Math.random() * (max - min + 1)) + min;
+            document.getElementById('singleResult').textContent = result;
+            
+            addToHistory(result, 'Single Number');
+        }
+
+        function generateMultiple() {
+            const count = parseInt(document.getElementById('multipleCount').value) || 1;
+            const min = parseInt(document.getElementById('multipleMin').value) || 0;
+            const max = parseInt(document.getElementById('multipleMax').value) || 100;
+            const unique = document.getElementById('uniqueNumbers').checked;
+            
+            if (min >= max) {
+                alert('Maximum value must be greater than minimum value');
+                return;
+            }
+            
+            if (unique && (max - min + 1) < count) {
+                alert('Cannot generate unique numbers: range is smaller than count');
+                return;
+            }
+            
+            let numbers = [];
+            
+            if (unique) {
+                while (numbers.length < count) {
+                    const num = Math.floor(Math.random() * (max - min + 1)) + min;
+                    if (!numbers.includes(num)) {
+                        numbers.push(num);
+                    }
+                }
+            } else {
+                for (let i = 0; i < count; i++) {
+                    numbers.push(Math.floor(Math.random() * (max - min + 1)) + min);
+                }
+            }
+            
+            numbers.sort((a, b) => a - b);
+            
+            const resultsContainer = document.getElementById('multipleResults');
+            resultsContainer.innerHTML = '';
+            resultsContainer.className = 'list-numbers';
+            
+            numbers.forEach(num => {
+                const chip = document.createElement('span');
+                chip.className = 'number-chip';
+                chip.textContent = num;
+                resultsContainer.appendChild(chip);
+            });
+            
+            addToHistory(numbers.join(', '), 'Multiple Numbers');
+        }
+
+        function rollDice() {
+            const count = parseInt(document.getElementById('diceCount').value) || 1;
+            const sides = parseInt(document.getElementById('diceSides').value) || 6;
+            
+            let rolls = [];
+            let total = 0;
+            
+            for (let i = 0; i < count; i++) {
+                const roll = Math.floor(Math.random() * sides) + 1;
+                rolls.push(roll);
+                total += roll;
+            }
+            
+            document.getElementById('diceResult').textContent = total;
+            
+            const details = count === 1 
+                ? `Single die: ${rolls[0]}`
+                : `Individual rolls: [${rolls.join(', ')}] | Total: ${total}`;
+            
+            document.getElementById('diceDetails').textContent = details;
+            
+            addToHistory(`${total} (${count}d${sides})`, 'Dice Roll');
+        }
+
+        function generateLottery() {
+            const count = parseInt(document.getElementById('lotteryCount').value) || 6;
+            const max = parseInt(document.getElementById('lotteryMax').value) || 49;
+            
+            if (max < count) {
+                alert('Maximum number must be greater than or equal to count');
+                return;
+            }
+            
+            let numbers = [];
+            while (numbers.length < count) {
+                const num = Math.floor(Math.random() * max) + 1;
+                if (!numbers.includes(num)) {
+                    numbers.push(num);
+                }
+            }
+            
+            numbers.sort((a, b) => a - b);
+            
+            const resultsContainer = document.getElementById('lotteryResults');
+            resultsContainer.innerHTML = '';
+            resultsContainer.className = 'list-numbers';
+            
+            numbers.forEach(num => {
+                const chip = document.createElement('span');
+                chip.className = 'number-chip';
+                chip.textContent = num;
+                resultsContainer.appendChild(chip);
+            });
+            
+            addToHistory(numbers.join(', '), 'Lottery');
+        }
+
+        function generateDecimal() {
+            const min = parseFloat(document.getElementById('decimalMin').value) || 0;
+            const max = parseFloat(document.getElementById('decimalMax').value) || 1;
+            const places = parseInt(document.getElementById('decimalPlaces').value) || 2;
+            
+            if (min >= max) {
+                alert('Maximum value must be greater than minimum value');
+                return;
+            }
+            
+            const result = (Math.random() * (max - min) + min).toFixed(places);
+            document.getElementById('decimalResult').textContent = result;
+            
+            addToHistory(result, 'Decimal');
+        }
+
+        function setLotteryPreset() {
+            const preset = document.getElementById('lotteryPreset').value;
+            const countInput = document.getElementById('lotteryCount');
+            const maxInput = document.getElementById('lotteryMax');
+            
+            switch (preset) {
+                case '6/49':
+                    countInput.value = 6;
+                    maxInput.value = 49;
+                    break;
+                case '5/69':
+                    countInput.value = 5;
+                    maxInput.value = 69;
+                    break;
+                case '7/35':
+                    countInput.value = 7;
+                    maxInput.value = 35;
+                    break;
+                case '6/59':
+                    countInput.value = 6;
+                    maxInput.value = 59;
+                    break;
+            }
+        }
+
+        function copyNumbers() {
+            const numbers = Array.from(document.querySelectorAll('#multipleResults .number-chip'))
+                .map(chip => chip.textContent)
+                .join(', ');
+            
+            if (numbers) {
+                navigator.clipboard.writeText(numbers).then(() => {
+                    alert('Numbers copied to clipboard!');
+                });
+            }
+        }
+
+        function copyLottery() {
+            const numbers = Array.from(document.querySelectorAll('#lotteryResults .number-chip'))
+                .map(chip => chip.textContent)
+                .join(', ');
+            
+            if (numbers) {
+                navigator.clipboard.writeText(numbers).then(() => {
+                    alert('Lottery numbers copied to clipboard!');
+                });
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                const activeTab = document.querySelector('.tab-content.active').id;
+                
+                switch (activeTab) {
+                    case 'single-tab':
+                        generateSingle();
+                        break;
+                    case 'multiple-tab':
+                        generateMultiple();
+                        break;
+                    case 'dice-tab':
+                        rollDice();
+                        break;
+                    case 'lottery-tab':
+                        generateLottery();
+                        break;
+                    case 'decimal-tab':
+                        generateDecimal();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Summarizer - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">
+            <i class='bx bx-arrow-back'></i> Back to Tools
+        </a>
+        
+        <div class="tool-header">
+            <h1>Text Summarizer</h1>
+            <p>Automatically summarize long text into key points and main ideas</p>
+        </div>
+
+        <!-- Top Banner Ad Container -->
+        <div id="adsterra-banner-top"></div>
+
+        <div class="content-layout" style="display: grid; grid-template-columns: 1fr 320px; gap: 2rem; align-items: start;">
+            <div class="main-content">
+                <div class="tool-section">
+                    <div class="form-group">
+                        <label for="textInput">Enter text to summarize:</label>
+                        <textarea id="textInput" placeholder="Paste your long text here..." style="height: 200px;"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="summaryLength">Summary Length:</label>
+                        <select id="summaryLength">
+                            <option value="short">Short (2-3 sentences)</option>
+                            <option value="medium" selected>Medium (4-6 sentences)</option>
+                            <option value="long">Long (7-10 sentences)</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <button class="button" onclick="summarizeText()">
+                            <i class='bx bx-magic-wand'></i> Summarize Text
+                        </button>
+                        <button class="button button-secondary" onclick="clearAll()">Clear</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="outputText">Summary:</label>
+                        <textarea id="outputText" readonly style="height: 150px;"></textarea>
+                    </div>
+
+                    <!-- Native Ad Container -->
+                    <div id="adsterra-native-middle"></div>
+
+                    <div class="stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <div class="stat-card" style="background: var(--surface-color); padding: 1rem; border-radius: 0.5rem; text-align: center; border: 1px solid var(--border-color);">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-accent);" id="originalWords">0</div>
+                            <div style="color: var(--subtle-text); font-size: 0.85rem;">Original Words</div>
+                        </div>
+                        <div class="stat-card" style="background: var(--surface-color); padding: 1rem; border-radius: 0.5rem; text-align: center; border: 1px solid var(--border-color);">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-accent);" id="summaryWords">0</div>
+                            <div style="color: var(--subtle-text); font-size: 0.85rem;">Summary Words</div>
+                        </div>
+                        <div class="stat-card" style="background: var(--surface-color); padding: 1rem; border-radius: 0.5rem; text-align: center; border: 1px solid var(--border-color);">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-accent);" id="compressionRatio">0%</div>
+                            <div style="color: var(--subtle-text); font-size: 0.85rem;">Compression</div>
+                        </div>
+                    </div>
+
+                    <button class="button" onclick="copyOutput()" style="margin-top: 1rem;">
+                        <i class='bx bx-copy'></i> Copy Summary
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sidebar with Ads -->
+            <div class="sidebar-content">
+                <!-- Sidebar Ad Container -->
+                <div id="adsterra-sidebar"></div>
+                
+                <!-- Video Ad Container -->
+                <div id="adsterra-video"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Banner Ad -->
+        <div id="adsterra-banner-bottom"></div>
+    </div>
+
+    <script src="../adsterra-manager.js"></script>
+    <script>
+        // Apply saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        // Tool functionality (same as before)
+        const textInput = document.getElementById('textInput');
+        const outputText = document.getElementById('outputText');
+        const summaryLength = document.getElementById('summaryLength');
+        const originalWords = document.getElementById('originalWords');
+        const summaryWords = document.getElementById('summaryWords');
+        const compressionRatio = document.getElementById('compressionRatio');
+
+        function summarizeText() {
+            const text = textInput.value.trim();
+            if (!text) {
+                alert('Please enter some text to summarize');
+                return;
+            }
+
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            const words = text.split(/\s+/).filter(w => w.length > 0);
+            
+            let summaryCount;
+            switch (summaryLength.value) {
+                case 'short': summaryCount = Math.min(3, sentences.length); break;
+                case 'medium': summaryCount = Math.min(5, sentences.length); break;
+                case 'long': summaryCount = Math.min(8, sentences.length); break;
+            }
+
+            let selectedSentences = [];
+            if (sentences.length <= summaryCount) {
+                selectedSentences = sentences;
+            } else {
+                selectedSentences.push(sentences[0]);
+                const step = Math.floor(sentences.length / summaryCount);
+                for (let i = step; i < sentences.length - 1 && selectedSentences.length < summaryCount - 1; i += step) {
+                    selectedSentences.push(sentences[i]);
+                }
+                if (selectedSentences.length < summaryCount) {
+                    selectedSentences.push(sentences[sentences.length - 1]);
+                }
+            }
+
+            const summary = selectedSentences.join('. ').trim() + '.';
+            outputText.value = summary;
+
+            const summaryWordCount = summary.split(/\s+/).filter(w => w.length > 0).length;
+            originalWords.textContent = words.length;
+            summaryWords.textContent = summaryWordCount;
+            compressionRatio.textContent = Math.round((1 - summaryWordCount / words.length) * 100);
+        }
+
+        function copyOutput() {
+            if (!outputText.value) {
+                alert('No summary to copy');
+                return;
+            }
+            outputText.select();
+            document.execCommand('copy');
+            alert('Summary copied to clipboard!');
+        }
+
+        function clearAll() {
+            textInput.value = '';
+            outputText.value = '';
+            originalWords.textContent = '0';
+            summaryWords.textContent = '0';
+            compressionRatio.textContent = '0%';
+        }
+
+        // Responsive layout
+        function updateLayout() {
+            const contentLayout = document.querySelector('.content-layout');
+            const sidebarContent = document.querySelector('.sidebar-content');
+            
+            if (window.innerWidth <= 1024) {
+                contentLayout.style.gridTemplateColumns = '1fr';
+                sidebarContent.style.display = 'none';
+            } else {
+                contentLayout.style.gridTemplateColumns = '1fr 320px';
+                sidebarContent.style.display = 'block';
+            }
+        }
+
+        window.addEventListener('resize', updateLayout);
+        updateLayout();
+
+        // Initialize Adsterra Ads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configure your ad zones (replace with your actual zone IDs)
+            const adConfig = {
+                banner: {
+                    containerId: 'adsterra-banner-top',
+                    zoneId: 'YOUR_BANNER_ZONE_ID', // Replace with actual zone ID
+                    width: 728,
+                    height: 90
+                },
+                native: {
+                    containerId: 'adsterra-native-middle',
+                    zoneId: 'YOUR_NATIVE_ZONE_ID' // Replace with actual zone ID
+                },
+                popunder: {
+                    zoneId: 'YOUR_POPUNDER_ZONE_ID', // Replace with actual zone ID
+                    frequency: 2 // Show every 2 hours
+                },
+                push: {
+                    zoneId: 'YOUR_PUSH_ZONE_ID' // Replace with actual zone ID
+                },
+                social: {
+                    zoneId: 'YOUR_SOCIAL_ZONE_ID' // Replace with actual zone ID
+                },
+                video: {
+                    containerId: 'adsterra-video',
+                    zoneId: 'YOUR_VIDEO_ZONE_ID' // Replace with actual zone ID
+                }
+            };
+
+            // Auto-load all ads
+            AdsterraManager.autoLoadAds(adConfig);
+
+            // Or load individual ads
+            // AdsterraManager.loadAd('banner', adConfig.banner);
+            // AdsterraManager.loadAd('native', adConfig.native);
+        });
+    </script>
+</body>
+</html>

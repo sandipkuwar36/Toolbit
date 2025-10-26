@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Encoder/Decoder - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">← Back to Tools</a>
+        
+        <div class="tool-header">
+            <h1>HTML Encoder/Decoder</h1>
+            <p>Encode and decode HTML entities</p>
+        </div>
+
+        <div class="tool-section">
+            <div class="form-group">
+                <label for="inputText">Input Text/HTML:</label>
+                <textarea id="inputText" placeholder="Enter HTML or text to encode/decode..."></textarea>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <button class="button" onclick="encodeHTML()">Encode HTML</button>
+                <button class="button" onclick="decodeHTML()">Decode HTML</button>
+            </div>
+
+            <div class="form-group">
+                <label for="outputText">Output:</label>
+                <textarea id="outputText" readonly></textarea>
+            </div>
+
+            <button class="button" onclick="copyOutput()">Copy Output</button>
+            <button class="button button-secondary" onclick="clearAll()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+
+        function encodeHTML() {
+            const text = inputText.value;
+            const div = document.createElement('div');
+            div.textContent = text;
+            outputText.value = div.innerHTML;
+        }
+
+        function decodeHTML() {
+            const text = inputText.value;
+            const div = document.createElement('div');
+            div.innerHTML = text;
+            outputText.value = div.textContent;
+        }
+
+        function copyOutput() {
+            outputText.select();
+            document.execCommand('copy');
+            alert('Output copied to clipboard!');
+        }
+
+        function clearAll() {
+            inputText.value = '';
+            outputText.value = '';
+        }
+    </script>
+</body>
+</html>

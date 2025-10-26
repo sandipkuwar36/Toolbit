@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator - AI Tools</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="tool-page">
+        <a href="../index.html" class="back-button">
+            <i class='bx bx-arrow-back'></i> Back to Tools
+        </a>
+        
+        <div class="tool-header">
+            <h1>QR Code Generator</h1>
+            <p>Generate QR codes for text, URLs, emails, phone numbers, and more</p>
+        </div>
+
+        <div class="tool-section">
+            <div class="form-group">
+                <label for="qrType">QR Code Type:</label>
+                <select id="qrType">
+                    <option value="text">Plain Text</option>
+                    <option value="url">Website URL</option>
+                    <option value="email">Email Address</option>
+                    <option value="phone">Phone Number</option>
+                    <option value="sms">SMS Message</option>
+                    <option value="wifi">WiFi Network</option>
+                    <option value="vcard">Contact Card (vCard)</option>
+                </select>
+            </div>
+
+            <div id="textInput" class="input-section">
+                <div class="form-group">
+                    <label for="qrText">Enter Text:</label>
+                    <textarea id="qrText" placeholder="Enter text to encode in QR code..."></textarea>
+                </div>
+            </div>
+
+            <div id="urlInput" class="input-section" style="display: none;">
+                <div class="form-group">
+                    <label for="qrUrl">Enter URL:</label>
+                    <input type="url" id="qrUrl" placeholder="https://example.com">
+                </div>
+            </div>
+
+            <div id="emailInput" class="input-section" style="display: none;">
+                <div class="form-group">
+                    <label for="qrEmail">Email Address:</label>
+                    <input type="email" id="qrEmail" placeholder="example@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="emailSubject">Subject (Optional):</label>
+                    <input type="text" id="emailSubject" placeholder="Email subject">
+                </div>
+                <div class="form-group">
+                    <label for="emailBody">Message (Optional):</label>
+                    <textarea id="emailBody" placeholder="Email message"></textarea>
+                </div>
+            </div>
+
+            <div id="phoneInput" class="input-section" style="display: none;">
+                <div class="form-group">
+                    <label for="qrPhone">Phone Number:</label>
+                    <input type="tel" id="qrPhone" placeholder="+1234567890">
+                </div>
+            </div>
+
+            <div id="smsInput" class="input-section" style="display: none;">
+                <div class="form-group">
+                    <label for="smsPhone">Phone Number:</label>
+                    <input type="tel" id="smsPhone" placeholder="+1234567890">
+                </div>
+                <div class="form-group">
+                    <label for="smsMessage">Message:</label>
+                    <textarea id="smsMessage" placeholder="SMS message"></textarea>
+                </div>
+            </div>
+
+            <div id="wifiInput" class="input-section" style="display: none;">
+                <div class="form-group">
+                    <label for="wifiSSID">Network Name (SSID):</label>
+                    <input type="text" id="wifiSSID" placeholder="WiFi Network Name">
+                </div>
+                <div class="form-group">
+                    <label for="wifiPassword">Password:</label>
+                    <input type="password" id="wifiPassword" placeholder="WiFi Password">
+                </div>
+                <div class="form-group">
+                    <label for="wifiSecurity">Security Type:</label>
+                    <select id="wifiSecurity">
+                        <option value="WPA">WPA/WPA2</option>
+                        <option value="WEP">WEP</option>
+                        <option value="nopass">None (Open)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="vcardInput" class="input-section" style="display: none;">
+                <div class="form-group">
+                    <label for="vcardName">Full Name:</label>
+                    <input type="text" id="vcardName" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="vcardPhone">Phone:</label>
+                    <input type="tel" id="vcardPhone" placeholder="+1234567890">
+                </div>
+                <div class="form-group">
+                    <label for="vcardEmail">Email:</label>
+                    <input type="email" id="vcardEmail" placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="vcardOrg">Organization:</label>
+                    <input type="text" id="vcardOrg" placeholder="Company Name">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="qrSize">QR Code Size:</label>
+                <select id="qrSize">
+                    <option value="200">200x200 px</option>
+                    <option value="300" selected>300x300 px</option>
+                    <option value="400">400x400 px</option>
+                    <option value="500">500x500 px</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <button class="button" onclick="generateQR()">
+                    <i class='bx bx-qr'></i> Generate QR Code
+                </button>
+                <button class="button button-secondary" onclick="clearAll()">Clear</button>
+            </div>
+
+            <div id="qrResult" style="text-align: center; margin-top: 2rem; display: none;">
+                <div id="qrCodeContainer" style="margin-bottom: 1rem;"></div>
+                <button class="button" onclick="downloadQR()">
+                    <i class='bx bx-download'></i> Download QR Code
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        const qrType = document.getElementById('qrType');
+        const inputSections = document.querySelectorAll('.input-section');
+
+        qrType.addEventListener('change', function() {
+            inputSections.forEach(section => section.style.display = 'none');
+            document.getElementById(this.value + 'Input').style.display = 'block';
+        });
+
+        function generateQRData() {
+            const type = qrType.value;
+            let data = '';
+
+            switch (type) {
+                case 'text':
+                    data = document.getElementById('qrText').value;
+                    break;
+                case 'url':
+                    data = document.getElementById('qrUrl').value;
+                    break;
+                case 'email':
+                    const email = document.getElementById('qrEmail').value;
+                    const subject = document.getElementById('emailSubject').value;
+                    const body = document.getElementById('emailBody').value;
+                    data = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    break;
+                case 'phone':
+                    data = `tel:${document.getElementById('qrPhone').value}`;
+                    break;
+                case 'sms':
+                    const smsPhone = document.getElementById('smsPhone').value;
+                    const smsMessage = document.getElementById('smsMessage').value;
+                    data = `sms:${smsPhone}?body=${encodeURIComponent(smsMessage)}`;
+                    break;
+                case 'wifi':
+                    const ssid = document.getElementById('wifiSSID').value;
+                    const password = document.getElementById('wifiPassword').value;
+                    const security = document.getElementById('wifiSecurity').value;
+                    data = `WIFI:T:${security};S:${ssid};P:${password};;`;
+                    break;
+                case 'vcard':
+                    const name = document.getElementById('vcardName').value;
+                    const phone = document.getElementById('vcardPhone').value;
+                    const emailVcard = document.getElementById('vcardEmail').value;
+                    const org = document.getElementById('vcardOrg').value;
+                    data = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL:${phone}\nEMAIL:${emailVcard}\nORG:${org}\nEND:VCARD`;
+                    break;
+            }
+            return data;
+        }
+
+        function generateQR() {
+            const data = generateQRData();
+            if (!data.trim()) {
+                alert('Please enter the required information');
+                return;
+            }
+
+            const size = document.getElementById('qrSize').value;
+            const qrContainer = document.getElementById('qrCodeContainer');
+            
+            // Clear previous QR code
+            qrContainer.innerHTML = '';
+
+            // Create QR code using API
+            const qrImage = document.createElement('img');
+            qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
+            qrImage.alt = 'Generated QR Code';
+            qrImage.style.maxWidth = '100%';
+            qrImage.style.border = '1px solid var(--border-color)';
+            qrImage.style.borderRadius = '8px';
+            
+            qrContainer.appendChild(qrImage);
+            document.getElementById('qrResult').style.display = 'block';
+        }
+
+        function downloadQR() {
+            const qrImage = document.querySelector('#qrCodeContainer img');
+            if (!qrImage) return;
+
+            const link = document.createElement('a');
+            link.download = 'qr-code.png';
+            link.href = qrImage.src;
+            link.click();
+        }
+
+        function clearAll() {
+            document.querySelectorAll('input, textarea, select').forEach(element => {
+                if (element.id !== 'qrType' && element.id !== 'qrSize') {
+                    element.value = '';
+                }
+            });
+            document.getElementById('qrResult').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
